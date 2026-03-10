@@ -1,0 +1,145 @@
+openapi: 3.0.3
+info:
+  title: API Log Analysis
+  description: API Log Analysis
+  version: 1.0.0
+  contact:
+    name: Becky McCreath
+    email: mccreathbecky@gmail.com
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /v1/report:
+    get:
+      summary: Get a report on the contents of a given log file
+      description: Parses a log file containing HTTP requests and reports on its contents
+      tags:
+        - Log Analysis
+      operationId: getLogReport
+      parameters:
+        - $ref: '#/components/parameters/FileUrl'
+        # TODO - make this configurable or assume a set pattern?
+        - $ref: '#/components/parameters/LogPatternLayout'
+        - $ref: "#/components/parameters/TrackingId"
+
+      responses:
+        '200':
+          description: Returned the report on the log file showing the number of unique IP addresses, the top 3 most visited URLs and the top 3 most active IP addresses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogReportResponse'
+        '400':
+          description: When mandatory query parameters 'FileUrl' or 'LogPattern' are missing or invalid
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          description: If the inbound x-api-key is invalid
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '500':
+          description: For a downstream issue. Retry after some time or contact support if the issue persists.
+          $ref: '#/components/responses/InternalServerResponse'
+
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      name: x-api-key
+      type: apiKey
+      in: header
+      description: |
+        The authentication is via a mandatory API key that needs to be included as a header parameter
+
+  parameters:
+    FileUrl:
+      name: fileUrl
+      in: query
+      required: true
+      schema:
+        type: string
+      description: An absolute file path to the log file to parse
+      example: "/Users/hgranger/Library/programming-task/programming-task-example-data.log"
+
+    LogPatternLayout:
+      name: logPatternLayout
+      in: query
+      required: true
+      schema:
+        type: string
+      description: A log4j pattern to use when parsing the log
+      example: '%h %l %u %t "%r" %s %b "%{Referer}i" "%{User-Agent}i"'
+
+    TrackingId:
+      name: x-tracking-id
+      in: header
+      required: false
+      description: >-
+        a unique identifier that can be used for tracking the request across different systems.
+        If not provided, a random UUID will be generated and used as the tracking ID for the request.
+      schema:
+        type: string
+      example: '54f929c4-d9b6-452b-beac-e6565b6d077f'
+
+  schemas:
+    LogReportResponse:
+      type: object
+      properties:
+        nbUniqueIpAddresses:
+          type: integer
+          description: The number of unique IP addresses
+          example: 7
+        topThreeUrls:
+          type: array
+          description: The top 3 most visited URLs
+          example: ["https://example.com/page1", "https://example.com/page2", "https://example.com/page3"]
+          items:
+            type: string
+            example: "https://example.com/page1"
+        topThreeIPAddresses:
+          type: array
+          description: The top 3 most active IP addresses
+          example: ["192.168.1.1", "192.168.1.2", "192.168.1.3"]
+          items:
+            type: string
+            example: "192.168.1.1"
+
+    ErrorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: An error code representing the type of error that occurred.
+          example: "BAD_REQUEST"
+        errorMessage:
+          type: string
+          description: A human-readable message providing more details about the error.
+          example: "The request is missing a required parameter 'fileUrl'."
+        trackingId:
+          type: string
+          description: A unique identifier that can be used for tracking the request across different systems.
+          example: '54f929c4-d9b6-452b-beac-e6565b6d077f'
+      example:
+        errorCode: "BAD_REQUEST"
+        errorMessage: "The request is missing a required parameter 'fileUrl'."
+        trackingId: '54f929c4-d9b6-452b-beac-e6565b6d077f'
+
+  responses:
+    BadRequestResponse:
+      description: The request is invalid due to missing or incorrect parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnauthorizedResponse:
+      description: Access token is missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalServerResponse:
+      description: An unexpected error occurred on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
