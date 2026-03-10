@@ -7,6 +7,10 @@ This is a basic demo API that allows you to provide an input log file and receiv
 - The top 3 most visited URLs
 - The top 3 most active IP addresses
 
+## Dependencies
+- Java 21
+- Maven
+
 ## Usage
 To install locally run
 ```bash
