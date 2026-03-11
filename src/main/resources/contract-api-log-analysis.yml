@@ -21,7 +21,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/FileUrl'
         # TODO - make this configurable or assume a set pattern?
-        - $ref: '#/components/parameters/LogPatternLayout'
+#        - $ref: '#/components/parameters/LogPatternLayout'
         - $ref: "#/components/parameters/TrackingId"
 
       responses:
@@ -61,14 +61,14 @@ components:
       description: An absolute file path to the log file to parse
       example: "/Users/hgranger/Library/programming-task/programming-task-example-data.log"
 
-    LogPatternLayout:
-      name: logPatternLayout
-      in: query
-      required: true
-      schema:
-        type: string
-      description: A log4j pattern to use when parsing the log
-      example: '%h %l %u %t "%r" %s %b "%{Referer}i" "%{User-Agent}i"'
+#    LogPatternLayout:
+#      name: logPatternLayout
+#      in: query
+#      required: true
+#      schema:
+#        type: string
+#      description: A log4j pattern to use when parsing the log
+#      example: '%h %l %u %t "%r" %s %b "%{Referer}i" "%{User-Agent}i"'
 
     TrackingId:
       name: x-tracking-id
