@@ -11,7 +11,7 @@ security:
   - ApiKeyAuth: []
 
 paths:
-  /v1/report:
+  /v1/reports:
     get:
       summary: Get a report on the contents of a given log file
       description: Parses a log file containing HTTP requests and reports on its contents
